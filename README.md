@@ -8,6 +8,7 @@ This revelation, described by Alan Fekete, Elizabeth O'Neil, and Patrick O'Neil 
 came to light only after this approach to consistency had gained widespread adoption in commercial databases.
 
 Now that over 10 years have elapsed we ask two questions:
+
 1. Are today's relational databases still subject to such surprising anomalies?
 2. How likely are such read anomalies to occur?
 
