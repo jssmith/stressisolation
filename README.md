@@ -110,7 +110,7 @@ The stress test starts by zeroing out all account balances.
 It then issues three queries concurrently with the following logic:
 
 - *Txn 1*: Add 20 to savings.
-- *Txn 2*: Subtract 10 from checking, but if doing so causes (checking + savings) to become negative charge a $1 overdraft fee. 
+- *Txn 2*: Subtract 10 from checking, but if doing so causes (checking + savings) to become negative charge an overdraft fee of 1.
 - *Txn 3*: Read balances (checking, savings).
 
 If *Txn 1* comes before *Txn 2* in a serial order the balances (checking, savings) end up as (20,-10),
