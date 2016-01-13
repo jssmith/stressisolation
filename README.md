@@ -1,3 +1,5 @@
+*For a more extensive introduction and for discussion of the evaluation please also see this [blog post](https://johann.schleier-smith.com/blog/2016/01/06/analyzing-a-read-only-transaction-anomaly-under-snapshot-isolation.html).*
+
 # Read Anomalies Under Snapshot Isolation #
 
 The big idea in [snapshot isolation](https://en.wikipedia.org/wiki/Snapshot_isolation) is that transactions read the database with a certain notion of consistency:
@@ -18,7 +20,7 @@ PostgreSQL appears to do so as well, under limited circumstances involving retri
 Less surprisingly, Oracle, PostgreSQL, and DB2 all exhibit the anomaly under less stringent (READ COMMITTED) isolation settings.
 MySQL, as tested, does not support snapshot isolation and so exhibits no anomalies.
 
-Note that this seeks to assess measures consistency, not to performance in terms of throughput or response time.
+Note that this test seeks to evaluate consistency, not to performance in terms of throughput or response time.
 Thus, this code does not assess the main benefit of snapshot isolation, which is to make the database faster. 
 
 # Running the Tests #
@@ -233,7 +235,7 @@ passwd db2inst1
 
 Disconnect your terminal from the Docker instance by issuing the sequence *ctrl*+p, *ctrl*+q.
 
-#### Review images ####
+## Review images ##
 
 Confirm that the Docker images are running properly and review the ports exposed:
 
@@ -250,4 +252,6 @@ ccad29085117        postgres:latest                  "/docker-entrypoint.s"   35
 45083cc64ecd        wnameless/oracle-xe-11g:latest   "/bin/sh -c '/usr/sbi"   39 minutes ago      Up 39 minutes       8080/tcp, 0.0.0.0:49160->22/tcp, 0.0.0.0:49161->1521/tcp   si-oracle
 a060f99a2435        mysql:latest                     "/entrypoint.sh mysql"   40 minutes ago      Up 40 minutes       0.0.0.0:32768->3306/tcp                                    si-mysql
 ```
+## Start testing ##
 
+Now that you have the databases configured you're ready to [run the tests](#running-the-tests).
