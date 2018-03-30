@@ -7,7 +7,7 @@ import stressisolation.dbconnection.DatabaseConnectionSource
 
 object TestConnection extends App {
   if (args.length != 1) {
-    System.err.println("Usage TestConnection (Oracle | MySql | DB2 | Postgres | SqlServer)")
+    System.err.println("Usage TestConnection (Oracle | MySql | DB2 | Postgres | SqlServer | SQLite)")
     System.exit(1)
   }
   val dbv = DatabaseVendor.withName(args(0))
@@ -18,7 +18,7 @@ object TestConnection extends App {
 
   val conn = cs.getConnection
   val sql = dbv match {
-    case MySql | Postgresql | SqlServer => "SELECT 1 x"
+    case MySql | Postgresql | SqlServer | SQLite => "SELECT 1 x"
     case Oracle => "SELECT 1 x FROM DUAL"
     case DB2 => "SELECT COUNT(*) x FROM ORG"
   }

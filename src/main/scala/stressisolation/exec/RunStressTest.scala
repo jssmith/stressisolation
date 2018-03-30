@@ -16,7 +16,7 @@ object RunStressTest extends App {
   val logger = Logger(LoggerFactory.getLogger(RunStressTest.getClass))
   if (args.length != 5) {
     System.err.println(
-      """Usage RunStressTest (Oracle | MySql | DB2 | Postgres | SqlServer) numConnections numTests (READ_COMMITTED | SERIALIZABLE) autocommit
+      """Usage RunStressTest (Oracle | MySql | DB2 | Postgres | SqlServer | SQLite) numConnections numTests (READ_COMMITTED | SERIALIZABLE) autocommit
         |  Suggested values:
         |    numConnections = 30
         |    numTests = 1000
@@ -62,7 +62,7 @@ object RunStressTest extends App {
               val ta = new TestAnomaly(conn, s, stats)
               val readResults = new ArrayBuffer[ReadResult]
               try {
-                var nextTask: Task = q.poll()
+                var nextTask: Task = q.take()
                 var failureCt = 0
                 while (nextTask.isInstanceOf[WorkTask]) {
                   try {
@@ -74,7 +74,7 @@ object RunStressTest extends App {
                         readResults += ta.txn3(userId)
                     }
                     failureCt = 0
-                    nextTask = q.poll()
+                    nextTask = q.take()
                   } catch {
                     case e: Exception =>
                       failureCt = failureCt + 1

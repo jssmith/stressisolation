@@ -9,9 +9,9 @@ import stressisolation.dbconnection.DatabaseConnectionSource
 import scala.util.Random
 
 abstract class DatabaseSetup {
-  val databaseName = "stressisolation"
-
   def getDatabaseVendor: DatabaseVendor
+
+  def databaseName = getDatabaseVendor.databaseName
 
   def createTables(conn: Connection): Unit
   val autoCommit: Boolean
@@ -24,7 +24,7 @@ abstract class DatabaseSetup {
     val rnd = new Random(234234)
     val users = rnd.shuffle((1 to DatabaseSetup.numAccounts).toList)
     def initAll(tableName: String, users: Iterable[Int]): Unit = {
-      val x = conn.prepareCall(s"INSERT INTO $databaseName.$tableName (id, balance) VALUES (?,0)")
+      val x = conn.prepareStatement(s"INSERT INTO $databaseName.$tableName (id, balance) VALUES (?,0)")
       var ct = 0
       for (userId <- users) {
         x.setInt(1, userId)
@@ -75,6 +75,7 @@ object DatabaseSetup {
       case Postgresql => new SetupPostresql(cs.autoCommit)
       case DB2 => new SetupDB2(cs.autoCommit)
       case SqlServer => new SetupSqlServer(cs.autoCommit)
+      case SQLite => new SetupSQLite(cs.autoCommit)
     }
   }
 }

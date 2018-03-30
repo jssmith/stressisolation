@@ -7,7 +7,7 @@ import stressisolation.dbconnection.DatabaseConnectionSource
 
 object SetupStressTest extends App {
   if (args.length != 1) {
-    System.err.println("Usage SetupStressTest (Oracle | MySql | DB2 | Postgres | SqlServer)")
+    System.err.println("Usage SetupStressTest (Oracle | MySql | DB2 | Postgres | SqlServer | SQLite)")
     System.exit(1)
   }
   val databaseVendorConfig = DatabaseVendor.withName(args(0))

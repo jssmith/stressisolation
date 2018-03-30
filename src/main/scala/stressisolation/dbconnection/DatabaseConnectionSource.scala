@@ -50,6 +50,8 @@ trait DatabaseConnectionSource {
           DriverManager.registerDriver(new org.postgresql.Driver)
         case SqlServer =>
           DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver)
+        case SQLite =>
+          DriverManager.registerDriver(new org.sqlite.JDBC)
       }
 
       initialized = true

@@ -9,6 +9,7 @@ import scala.util.Random
 class TestAnomaly(conn: Connection, databaseSetup: DatabaseSetup, stats: Statistics) {
   private val databaseVendor = databaseSetup.getDatabaseVendor
   private val autoCommit = databaseSetup.autoCommit
+  private val databaseName = databaseVendor.databaseName
 
   val numRetries = 30
 
@@ -39,9 +40,9 @@ class TestAnomaly(conn: Connection, databaseSetup: DatabaseSetup, stats: Statist
 
   def txn1(userId: Int): Unit = {
     val sql =
-      """
-        |UPDATE stressisolation.savings s SET balance = balance + 20
-        |WHERE s.id = ?
+      s"""
+        |UPDATE $databaseName.savings SET balance = balance + 20
+        |WHERE savings.id = ?
       """.stripMargin
     val stmt = conn.prepareStatement(sql)
     try {
@@ -60,15 +61,15 @@ class TestAnomaly(conn: Connection, databaseSetup: DatabaseSetup, stats: Statist
   def txn2(userId: Int): Unit = {
     val sql = databaseVendor match {
       case DatabaseVendor.Postgresql => {
-        """
-          |UPDATE stressisolation.checking AS c
+        s"""
+          |UPDATE $databaseName.checking AS c
           |SET balance =
           |  CASE WHEN s.balance + c.balance >= 10 THEN
           |    c.balance - 10
           |  ELSE
           |    c.balance - 11
           |  END
-          |FROM stressisolation.savings AS s
+          |FROM $databaseName.savings AS s
           |WHERE c.id = s.id AND c.id = ?
         """.stripMargin
       }
@@ -86,10 +87,10 @@ class TestAnomaly(conn: Connection, databaseSetup: DatabaseSetup, stats: Statist
         """.stripMargin
       }
       case DatabaseVendor.Oracle => {
-        """
+        s"""
           |UPDATE (SELECT c.id id, c.balance cb, s.balance sb
-          |FROM stressisolation.checking c JOIN
-          |  stressisolation.savings s ON c.id=s.id)
+          |FROM $databaseName.checking c JOIN
+          |  $databaseName.savings s ON c.id=s.id)
           |SET cb = CASE WHEN cb + sb >= 10 THEN
           |    cb - 10
           |  ELSE
@@ -99,13 +100,25 @@ class TestAnomaly(conn: Connection, databaseSetup: DatabaseSetup, stats: Statist
         """.stripMargin
       }
       case DatabaseVendor.DB2 => {
-        """
-          |UPDATE stressisolation.checking
+        s"""
+          |UPDATE $databaseName.checking
           |  SET balance = (
           |    SELECT CASE WHEN c.balance + s.balance >= 10
           |      THEN c.balance - 10 ELSE c.balance - 11 END
-          |     FROM stressisolation.checking c JOIN stressisolation.savings s
+          |     FROM $databaseName.checking c JOIN $databaseName.savings s
           |       ON c.id = s.id where c.id = ?
+          |  )
+          |WHERE id = ?
+        """.stripMargin
+      }
+      case DatabaseVendor.SQLite => {
+        """
+          |UPDATE checking
+          |  SET balance = (
+          |    SELECT CASE WHEN checking.balance + savings.balance >= 10
+          |      THEN checking.balance - 10 ELSE checking.balance - 11 END
+          |     FROM checking JOIN savings
+          |       ON checking.id = savings.id where checking.id = ?
           |  )
           |WHERE id = ?
         """.stripMargin
@@ -114,7 +127,7 @@ class TestAnomaly(conn: Connection, databaseSetup: DatabaseSetup, stats: Statist
     val stmt = conn.prepareStatement(sql)
     try {
       stmt.setInt(1, userId)
-      if (DatabaseVendor.DB2 == databaseVendor) {
+      if (DatabaseVendor.DB2 == databaseVendor || DatabaseVendor.SQLite == databaseVendor) {
         stmt.setInt(2, userId)
       }
       retry(() => {
@@ -130,10 +143,10 @@ class TestAnomaly(conn: Connection, databaseSetup: DatabaseSetup, stats: Statist
 
   def txn3(userId: Int): ReadResult = {
     val sql =
-      """
+      s"""
         |SELECT c.balance cb, s.balance sb
-        |FROM stressisolation.checking c
-        |JOIN stressisolation.savings s
+        |FROM $databaseName.checking c
+        |JOIN $databaseName.savings s
         |ON c.id = s.id
         |WHERE s.id = ?
       """.stripMargin
