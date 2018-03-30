@@ -74,9 +74,9 @@ test complete for Oracle
 > 
 ```
 
-Substitute one of `MySql`, `Postgresql`, or `DB2` in place of `Oracle` to test connections to other databases.
-Drivers for MySQL and PostgreSQL come automatically through sbt.
-Due to licensing and distribution restrictions you will need to download the Oracle (ojdbc14.jar, ojdbc7.jar, or ojdbc7.jar) and DB2 (db2jcc.jar, or db2jcc4.jar) JDBC drivers yourself,
+Substitute one of `MySql`, `Postgresql`, `DB2`, `SqlServer`, or `SQLite` in place of `Oracle` to test connections to other databases.
+Drivers for MySQL, PostgreSQL, and SQLite come automatically through sbt.
+Due to licensing and distribution restrictions you will need to download the Oracle (ojdbc14.jar, ojdbc7.jar, or ojdbc7.jar), DB2 (db2jcc.jar, or db2jcc4.jar), and SQL Server (sqljdbc4.jar) JDBC drivers yourself,
 placing them in the lib/ directory. 
 
 ### Creating schema ###
@@ -94,7 +94,7 @@ Again, substitute the name of other databases in place of `Oracle` to complete c
 
 The stress test program takes the following parameters:
 
-- *Database vendor*: One of `Oracle`, `MySql`, `Postgresql`, or `DB2`.
+- *Database vendor*: One of `Oracle`, `MySql`, `Postgresql`, `DB2`, `SqlServer` or `SQLite`.
 - *Number of connections*: How many concurrent connections to make to the database.
 - *Number of iterations*: How many sets of concurrent queries to issues (max 100,000).
   Each set of queries runs on a unique customer identifier.
@@ -234,6 +234,14 @@ passwd db2inst1
 ```
 
 Disconnect your terminal from the Docker instance by issuing the sequence *ctrl*+p, *ctrl*+q.
+
+### SQLite ###
+
+SQLite requires a system SQLite installation. If it is not pre-installed on your system you can add it using
+your package manager, e.g., `yum`, `apt`, `brew`, `port`, etc.
+
+This program uses a test database file in `/tmp/stressisolation.db`.
+To change this location edit `src/main/resources/stressisolation.properties`.
 
 ## Review images ##
 
